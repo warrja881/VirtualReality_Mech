@@ -26,8 +26,16 @@ public class KeyboardMouseInput : MonoBehaviour
     /// <summary>Event which handles weapon switching.</summary>
     public event KeyboardSwitchWeaponEvent OnSwitchWeapon;
 
+    /// <summary>Delegate which handles in-game pausing.</summary>
+    public delegate void KeyboardPauseEvent(bool active);
+
+    /// <summary>Event which handles in-game pausing.</summary>
+    public event KeyboardPauseEvent OnPause;
+
     private void Update()
     {
+        OnPause?.Invoke(Input.GetKeyDown(KeyCode.Escape));
+
         OnLook?.Invoke(Input.GetAxis("Horizontal"));
         OnMove?.Invoke(Input.GetAxis("Vertical"));
         OnFire?.Invoke(Input.GetMouseButton(0));
