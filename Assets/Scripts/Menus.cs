@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine;
 
 public class Menus : MonoBehaviour
 {
@@ -9,74 +6,62 @@ public class Menus : MonoBehaviour
      custom canvas, attach this script and than any function can be accessed through something like a button that is a child of the canvas. Need to make sure that
     you pass the canvas you want to work with into buttons handler.*/
 
-    /*<Varibale Summary> A handle to the main menu canvas so it can turned on/off when the player clicks a button.*/
+    /// <summary>A handle to the main menu canvas so it can turned on/off when the player clicks a button.</summary>
     [SerializeField]
-    private GameObject mainMenu;
+    private GameObject mainMenu = null;
 
-    /*<Vairbale Summary> A handle to the setting canvas so it can turned on/off when the player clicks a button.*/
+    /// <summary>A handle to the setting canvas so it can turned on/off when the player clicks a button.</summary>
     [SerializeField]
-    private GameObject settings;
+    private GameObject settings = null;
 
-    /*<Varibale Summary> A handle to the main menu canvas so it can turned on/off when the player clicks a button.*/
+    /// <summary>A handle to the main menu canvas so it can turned on/off when the player clicks a button.</summary>
     [SerializeField]
-    private GameObject pauseMenu;
+    private GameObject pauseMenu = null;
 
-    private Scene currentScene;
-    private string currSceneName;
-
-    void Awake()
+    private void Start()
     {
-        currentScene = SceneManager.GetActiveScene();
-        currSceneName = currentScene.name;
+        if (pauseMenu != null) pauseMenu.SetActive(false);
     }
 
-    /*<Function Summary> Unity will attempt to find whatever scene that is passed in as a argument. Make sure that it is spelt correct and the scene is in the 
-    build settings*/
-    public void StartGame()
-    {
-        SceneManager.LoadScene("Level_001");
-    }
+    /// <summary>Unity will attempt to find whatever scene that is passed in as a argument. Make sure that it is spelt correct and the scene is in the build settings.</summary>
+    public void StartGame() => GameManager.Instance.LoadScene("Level_001");
 
-    /*<FunctionSummary> Will turn the 'main menu' canvas off and turn the 'settings' canvas of so that the player can tweak the games settings.*/
+    /// <summary>Will turn the 'main menu' canvas off and turn the 'settings' canvas of so that the player can tweak the games settings.</summary>
     public void Settings()
     {
         mainMenu.SetActive(false); 
         settings.SetActive(true);
     }
 
-    /*<Function Summary> Will turn the 'main menu' canvas on and turn the 'settings' canvas off so that the player can return from the settings once done.*/
+    /// <summary>Will turn the 'main menu' canvas on and turn the 'settings' canvas off so that the player can return from the settings once done.</summary>
     public void ReturnToMenu()
     {
-        if(currSceneName == "MainMenu") {
+        if (GameManager.Instance.CurrentScene.name == "MainMenu") {
             mainMenu.SetActive(true);
             settings.SetActive(false);
         }
         else
         {
-            SceneManager.LoadScene("MainMenu");
+            GameManager.Instance.LoadScene("MainMenu");
             mainMenu.SetActive(true);
             settings.SetActive(false);
-            Time.timeScale = 1.0f;
         }
     }
 
-    /*<Funciton Summary> Tells unity to shut down the game once the player has clicked onto the 'quit game' button.*/
+    /// <summary>Tells unity to shut down the game once the player has clicked onto the 'quit game' button.</summary>
     public void ExitGame()
     {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+
         Application.Quit();
     }
 
-    /*<Function Summary> Allows for the player to press the set up 'pause' input to bring up the pause menu and freeze the game.*/
-    public void PauseGame()
+    /// <summary>Closes the pause menu.</summary>
+    public void ClosePauseMenu()
     {
-        Time.timeScale = 0f;
-        pauseMenu.SetActive(true);
-    }
-
-    /*<Function Summary> Allows for the player to resume the game once they are finished what it was they were doing.*/
-    public void ResumeGame()
-    {
-        pauseMenu.SetActive(false);
-        Time.timeScale = 1.0f;
+        if (GameManager.Instance.Paused)
+            GameManager.Instance.TogglePause(true);
     }
 }
