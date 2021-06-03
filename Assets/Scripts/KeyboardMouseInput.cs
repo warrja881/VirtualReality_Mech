@@ -32,6 +32,11 @@ public class KeyboardMouseInput : MonoBehaviour
     /// <summary>Event which handles in-game pausing.</summary>
     public event KeyboardPauseEvent OnPause;
 
+    private void Start()
+    {
+        OnPause += GameManager.Instance.TogglePause;
+    }
+
     private void Update()
     {
         OnPause?.Invoke(Input.GetKeyDown(KeyCode.Escape));
