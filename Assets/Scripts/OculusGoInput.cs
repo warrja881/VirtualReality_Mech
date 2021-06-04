@@ -36,11 +36,6 @@ public class OculusGoInput : MonoBehaviour
 
     /// <summary>Gets the controler </summary>
     public GameObject controller;
-    public Transform controllerTransform;
-
-    public GameObject text;
-    public GameObject text2;
-
 
     private void Start()
     {
@@ -51,8 +46,6 @@ public class OculusGoInput : MonoBehaviour
     {
         OnPause?.Invoke(Input.GetKeyDown(KeyCode.Escape));
 
-        text.GetComponent<TextMesh>().text = controller.transform.eulerAngles.y.ToString();
-        text2.GetComponent<TextMesh>().text = controller.transform.eulerAngles.x.ToString();
         if (OVRInput.Get(OVRInput.Button.PrimaryTouchpad))
         {
             OnLook?.Invoke(GetControllerHorizontal());
