@@ -23,6 +23,12 @@ public class Menus : MonoBehaviour
         if (pauseMenu != null) pauseMenu.SetActive(false);
     }
 
+    private void Awake()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
     /// <summary>Unity will attempt to find whatever scene that is passed in as a argument. Make sure that it is spelt correct and the scene is in the build settings.</summary>
     public void StartGame() => GameManager.Instance.LoadScene("Level_001");
 
