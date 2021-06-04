@@ -38,6 +38,9 @@ public class OculusGoInput : MonoBehaviour
     public GameObject controller;
     public Transform controllerTransform;
 
+    public GameObject text;
+    public GameObject text2;
+
 
     private void Start()
     {
@@ -48,6 +51,8 @@ public class OculusGoInput : MonoBehaviour
     {
         OnPause?.Invoke(Input.GetKeyDown(KeyCode.Escape));
 
+        text.GetComponent<TextMesh>().text = controller.transform.eulerAngles.y.ToString();
+        text2.GetComponent<TextMesh>().text = controller.transform.eulerAngles.x.ToString();
         if (OVRInput.Get(OVRInput.Button.PrimaryTouchpad))
         {
             OnLook?.Invoke(GetControllerHorizontal());
@@ -74,10 +79,14 @@ public class OculusGoInput : MonoBehaviour
 
     private float GetControllerHorizontal()
     {
-        //float temp = Mathf.Clamp(MapToRange(controller.transform.localEulerAngles.y, -90, 90, -1, 1), -1.0f, 1.0f);
-        float temp = Mathf.Clamp(MapToRange(controllerTransform.eulerAngles.y, -90, 90, -1, 1), -1.0f, 1.0f);
+        float angle = controller.transform.eulerAngles.y;
+        //float temp = Mathf.Clamp(MapToRange(controller.transform.rotation.y, -90, 90, -1, 1), -1.0f, 1.0f);
+        if (angle > 270)
+            angle -= 180;
+        float temp = Mathf.Clamp(MapToRange(controller.transform.eulerAngles.y, 30, 270, -1, 1), -1.0f, 1.0f);
+        //float temp = Mathf.Clamp(MapToRange(controllerTransform.eulerAngles.y, -90, 90, -1, 1), -1.0f, 1.0f);
 
-        if (temp > -0.5f && temp < 0.5f)
+        if (temp > -0.25f && temp < 0.25f)
         {
             return 0.0f;
         }
@@ -89,10 +98,11 @@ public class OculusGoInput : MonoBehaviour
 
     private float GetControllerVertical()
     {
-        //float temp = Mathf.Clamp(MapToRange(controller.transform.localEulerAngles.x, -110, 0, -1, 1), -1.0f, 1.0f);
-        float temp = Mathf.Clamp(MapToRange(controllerTransform.eulerAngles.x, -110, -20, -1, 1), -1.0f, 1.0f);
+        //float temp = Mathf.Clamp(MapToRange(controller.transform.rotation.x, -110, 0, -1, 1), -1.0f, 1.0f);
+        float temp = Mathf.Clamp(MapToRange(controller.transform.eulerAngles.x, 0, 320, -1, 1), -1.0f, 1.0f);
+        //float temp = Mathf.Clamp(MapToRange(controllerTransform.eulerAngles.x, -110, 0, -1, 1), -1.0f, 1.0f);
 
-        if (temp > -0.5f && temp < 0.5f)
+        if (temp > -0.25f && temp < 0.25f)
         {
             return 0.0f;
         }
