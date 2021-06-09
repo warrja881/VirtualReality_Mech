@@ -34,6 +34,9 @@ public class MechController : MonoBehaviour
     /// <summary>The keyboard and mouse input handler.</summary>
     private KeyboardMouseInput m_KBMInput;
 
+    /// <summary>The Oculus Go input handler </summary>
+    private OculusGoInput m_GOInput;
+
     public Rigidbody Rigidbody { get => m_Rigidbody; }
 
     private Rigidbody m_Rigidbody;
@@ -50,10 +53,18 @@ public class MechController : MonoBehaviour
 
     private void Awake()
     {
-        // If an input system has not been assign, attempt to
-        // find one on the game object this script is attached to
-        if (m_KBMInput == null)
-            m_KBMInput = GetComponent<KeyboardMouseInput>();
+        if (SystemInfo.deviceType == DeviceType.Desktop)
+        {
+            // If an input system has not been assign, attempt to
+            // find one on the game object this script is attached to
+            if (m_KBMInput == null)
+                m_KBMInput = GetComponent<KeyboardMouseInput>();
+        }
+        else
+        {
+            if (m_GOInput == null)
+                m_GOInput = GetComponent<OculusGoInput>();
+        }
 
         m_Rigidbody = GetComponent<Rigidbody>();
     }
@@ -64,19 +75,36 @@ public class MechController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
+        m_MechRotation = transform.localRotation.eulerAngles.y;
+
         // Ensure input component exists before assigning inputs
         // This prevents null reference exceptioon errors
-        if (m_KBMInput != null)
+        if (SystemInfo.deviceType == DeviceType.Desktop)
         {
-            m_KBMInput.OnFire += Fire;
-            m_KBMInput.OnLook += Look;
-            m_KBMInput.OnMove += Move;
-            m_KBMInput.OnSwitchWeapon += SwitchWeapons;
+            if (m_KBMInput != null)
+            {
+                m_KBMInput.OnFire += Fire;
+                m_KBMInput.OnLook += Look;
+                m_KBMInput.OnMove += Move;
+                m_KBMInput.OnSwitchWeapon += SwitchWeapons;
+            }
+        }
+        else
+        {
+            if (m_GOInput != null)
+            {
+                m_GOInput.OnFire += Fire;
+                m_GOInput.OnLook += Look;
+                m_GOInput.OnMove += Move;
+                m_GOInput.OnSwitchWeapon += SwitchWeapons;
+            }
         }
     }
 
     private void FixedUpdate()
     {
+        Debug.Log(m_MechRotation);
+
         if (m_Rigidbody.velocity.y != 0.0f)
             m_Rigidbody.velocity += Physics.gravity * 2.5f * Time.fixedDeltaTime;
     }
@@ -94,7 +122,7 @@ public class MechController : MonoBehaviour
     {
         m_MechRotation += value * m_RotationSpeed;
         Quaternion targetRotation = Quaternion.Euler(0.0f, m_MechRotation, 0.0f);
-        m_Rigidbody.rotation = Quaternion.Lerp(m_Rigidbody.rotation, targetRotation, Time.deltaTime * m_RotationSmooth);
+        transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRotation, Time.deltaTime * m_RotationSmooth);
     }
 
     /// <summary>Switches between the chaingun and rocket launcher.</summary>
