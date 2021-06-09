@@ -45,6 +45,19 @@ public class OculusGoInput : MonoBehaviour
     [Range(0.0f, 1.0f)]
     public float deadzone = 0.5f;
 
+    /// <summary>The min look range is to be edited to find a good median </summary>
+    [Range(0.0f, 360.0f)]
+    public float LookRangeMin = 65.0f;
+    /// <summary>The max look range is to be edited to find a good median </summary>
+    [Range(0.0f, 360.0f)]
+    public float LookRangeMax = 320.0f;
+
+    /// <summary>The min move range is to be edited to find a good median </summary>
+    [Range(0.0f, 360.0f)]
+    public float MoveRangeMin = 270.0f;
+    /// <summary>The max move range is to be edited to find a good median </summary>
+    [Range(0.0f, 360.0f)]
+    public float MoveRangeMax = 359.0f;
 
     public TextMeshPro textA;
     public TextMeshPro textB;
@@ -102,7 +115,7 @@ public class OculusGoInput : MonoBehaviour
         float angle = CombineMat4.rotation.eulerAngles.y;
 
 
-        float temp = Mathf.Clamp(MapToRange(angle, 65, 320, 1, -1), -1.0f, 1.0f);
+        float temp = Mathf.Clamp(MapToRange(angle, LookRangeMin, LookRangeMax, 1, -1), -1.0f, 1.0f);
         
         if (Mathf.Abs(temp) < deadzone)
         {
@@ -120,7 +133,7 @@ public class OculusGoInput : MonoBehaviour
         float angle = CombineMat4.rotation.eulerAngles.x;
 
 
-        float temp = Mathf.Clamp(MapToRange(angle, 270, 359, -1, 1), -1.0f, 1.0f);
+        float temp = Mathf.Clamp(MapToRange(angle, MoveRangeMin, MoveRangeMax, -1, 1), -1.0f, 1.0f);
 
         if (Mathf.Abs(temp) < deadzone)
         {
