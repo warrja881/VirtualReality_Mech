@@ -22,11 +22,11 @@ public class ExplosiveBarrel : MonoBehaviour
     private float m_ChainExplosionDelay = 0.5f;
 
     [SerializeField]
-    [Tooltip("The amount of damage the barrel deals to the mechs.")]
+    [Tooltip("The amount of explosion force the barrel deals to its surroundings.")]
     private float m_ExplosionForce = 250.0f;
 
     [SerializeField]
-    [Tooltip("The amount of damage the barrel deals to the mechs.")]
+    [Tooltip("The amount of damage the barrel deals to its surroundings.")]
     private float m_Damage = 50.0f;
 
     public Rigidbody Rigidbody { get => m_Rigidbody; }
@@ -83,6 +83,13 @@ public class ExplosiveBarrel : MonoBehaviour
         // Destroy game object after explosion
         // NOTE: This is not efficient. It would be best to implement object pooling
         Destroy(gameObject);
+    }
+
+    public void TakeDamage(int damage)
+    {
+        m_CurrentHealth -= damage;
+
+        if (m_CurrentHealth <= 0) Explode();
     }
 
     public void ExplodeWithDelay()
