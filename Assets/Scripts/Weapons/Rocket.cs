@@ -6,7 +6,7 @@ public class Rocket : MonoBehaviour
 {
     [SerializeField]
     [Tooltip("The particle system for the explosion.")]
-    private ParticleSystem m_ExplosionParticles;
+    private GameObject m_ExplosionParticlesPrefab;
 
     [SerializeField]
     [Tooltip("The particle system for the rocket trail.")]
@@ -26,24 +26,16 @@ public class Rocket : MonoBehaviour
 
     public void Launch(Vector3 direction)
     {
-        if (m_ExplosionParticles != null)
-            m_ExplosionParticles.gameObject.SetActive(false);
-
         Rigidbody rigidbody = GetComponent<Rigidbody>();
         rigidbody.useGravity = false;
         rigidbody.AddForce(direction * m_LaunchSpeed, ForceMode.Impulse);
+
     }
 
     private void Explode()
     {
-        if (m_TrailParticles != null)
-            m_TrailParticles.Stop();
-
-        if (m_ExplosionParticles != null)
-        {
-            m_ExplosionParticles.gameObject.SetActive(true);
-            m_ExplosionParticles.Play();
-        }
+        m_TrailParticles.Stop();
+        var explosionParticles = Instantiate(m_ExplosionParticlesPrefab, transform.position, Quaternion.identity);
 
         // Find all surrounding barrels
         var surroundingBarrels = FindObjectsOfType(typeof(ExplosiveBarrel)).ToList();
@@ -66,10 +58,23 @@ public class Rocket : MonoBehaviour
                     barrel.Rigidbody.AddExplosionForce(m_ExplosionForce * barrel.Rigidbody.mass / 2.0f, transform.position, m_BlastRadius);
 
                     // Detonate barrel
-                    barrel.Explode();
+                    barrel.ExplodeWithDelay();
                 }
             }
         });
+
+        // Destroy game object after explosion
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.m_ObjectDestroyer.AddToQueue(gameObject);
+            GameManager.Instance.m_ObjectDestroyer.AddToQueue(explosionParticles);
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            Destroy(gameObject);
+            Destroy(explosionParticles);
+        }
     }
 
     private void OnCollisionEnter(Collision collision) => Explode();

@@ -36,14 +36,11 @@ public class MechController : MonoBehaviour
 
     private Rigidbody m_Rigidbody;
 
-    ////////////////////////////////////////////////////////////
-    //// THE FOLLOWING IS JANK AND WILL BE REMOVED LATER ON ////
-    ////////////////////////////////////////////////////////////
-
     private enum Weapon { ChainGun = 1, RocketLauncher = 2 }
 
     [SerializeField]
-    [Tooltip("The current selected weapon.\n(NOTE: This is jank af and will be removed later in favour of a better solution.)")]
+    [ReadOnly]
+    [Tooltip("The current selected weapon.")]
     private Weapon m_CurrentWeapon = Weapon.ChainGun;
 
     private void Awake()
