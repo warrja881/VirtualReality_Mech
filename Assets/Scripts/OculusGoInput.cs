@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class OculusGoInput : MonoBehaviour
@@ -37,6 +38,34 @@ public class OculusGoInput : MonoBehaviour
     /// <summary>Gets the controler </summary>
     public GameObject controller;
 
+    /// <summary>Gets the mech </summary>
+    public GameObject mech;
+
+    /// <summary>To set the deadzone of the movement "Joystick" </summary>
+    [Range(0.0f, 1.0f)]
+    public float deadzone = 0.5f;
+
+    /// <summary>The min look range is to be edited to find a good median </summary>
+    [Range(0.0f, 360.0f)]
+    public float LookRangeMin = 65.0f;
+    /// <summary>The max look range is to be edited to find a good median </summary>
+    [Range(0.0f, 360.0f)]
+    public float LookRangeMax = 320.0f;
+
+    /// <summary>The min move range is to be edited to find a good median </summary>
+    [Range(0.0f, 360.0f)]
+    public float MoveRangeMin = 270.0f;
+    /// <summary>The max move range is to be edited to find a good median </summary>
+    [Range(0.0f, 360.0f)]
+    public float MoveRangeMax = 359.0f;
+
+
+    private Matrix4x4 ControllerMat4;
+    private Matrix4x4 MechMat4;
+    private Matrix4x4 CombineMat4;
+
+
+
     private void Start()
     {
         //OnPause += GameManager.Instance.TogglePause;
@@ -45,6 +74,12 @@ public class OculusGoInput : MonoBehaviour
     private void Update()
     {
         OnPause?.Invoke(Input.GetKeyDown(KeyCode.Escape));
+
+        MechMat4 = mech.transform.worldToLocalMatrix;
+        ControllerMat4 = controller.transform.localToWorldMatrix;
+
+        CombineMat4 = MechMat4 * ControllerMat4;
+
 
         if (OVRInput.Get(OVRInput.Button.PrimaryTouchpad))
         {
@@ -72,14 +107,13 @@ public class OculusGoInput : MonoBehaviour
 
     private float GetControllerHorizontal()
     {
-        float angle = controller.transform.eulerAngles.y;
-        //float temp = Mathf.Clamp(MapToRange(controller.transform.rotation.y, -90, 90, -1, 1), -1.0f, 1.0f);
-        if (angle > 270)
-            angle -= 180;
-        float temp = Mathf.Clamp(MapToRange(controller.transform.eulerAngles.y, 30, 270, -1, 1), -1.0f, 1.0f);
-        //float temp = Mathf.Clamp(MapToRange(controllerTransform.eulerAngles.y, -90, 90, -1, 1), -1.0f, 1.0f);
+        //float angle = controller.transform.localEulerAngles.y;
+        float angle = CombineMat4.rotation.eulerAngles.y;
 
-        if (temp > -0.25f && temp < 0.25f)
+
+        float temp = Mathf.Clamp(MapToRange(angle, LookRangeMin, LookRangeMax, 1, -1), -1.0f, 1.0f);
+        
+        if (Mathf.Abs(temp) < deadzone)
         {
             return 0.0f;
         }
@@ -91,11 +125,13 @@ public class OculusGoInput : MonoBehaviour
 
     private float GetControllerVertical()
     {
-        //float temp = Mathf.Clamp(MapToRange(controller.transform.rotation.x, -110, 0, -1, 1), -1.0f, 1.0f);
-        float temp = Mathf.Clamp(MapToRange(controller.transform.eulerAngles.x, 0, 320, -1, 1), -1.0f, 1.0f);
-        //float temp = Mathf.Clamp(MapToRange(controllerTransform.eulerAngles.x, -110, 0, -1, 1), -1.0f, 1.0f);
+        //float angle = controller.transform.localEulerAngles.x;
+        float angle = CombineMat4.rotation.eulerAngles.x;
 
-        if (temp > -0.25f && temp < 0.25f)
+
+        float temp = Mathf.Clamp(MapToRange(angle, MoveRangeMin, MoveRangeMax, -1, 1), -1.0f, 1.0f);
+
+        if (Mathf.Abs(temp) < deadzone)
         {
             return 0.0f;
         }
@@ -104,4 +140,5 @@ public class OculusGoInput : MonoBehaviour
             return temp;
         }
     }
+
 }
