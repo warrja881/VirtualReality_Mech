@@ -66,14 +66,14 @@ public class Rocket : MonoBehaviour
         // Destroy game object after explosion
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.m_ObjectDestroyer.AddToQueue(gameObject);
             GameManager.Instance.m_ObjectDestroyer.AddToQueue(explosionParticles);
+            GameManager.Instance.m_ObjectDestroyer.AddToQueue(gameObject);
             gameObject.SetActive(false);
         }
         else
         {
-            Destroy(gameObject);
             Destroy(explosionParticles);
+            Destroy(gameObject);
         }
     }
 

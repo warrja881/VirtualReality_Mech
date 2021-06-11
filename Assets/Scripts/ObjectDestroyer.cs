@@ -10,13 +10,13 @@ public class ObjectDestroyer : MonoBehaviour
     }
 
     /// <summary>List of all the objects to be destroyed</summary>
-    private List<GameObject> m_DestroyQueue = new List<GameObject>();
+    private HashSet<GameObject> m_DestroyQueue = new HashSet<GameObject>();
 
     public void Update()
     {
         if (m_DestroyQueue.Count > 0)
         {
-            var ps = m_DestroyQueue.First().GetComponentInChildren<ParticleSystem>();    
+            var ps = m_DestroyQueue.First()?.GetComponentInChildren<ParticleSystem>();
             if (ps != null)
                 if (!ps.isPlaying)
                     DestroyFirst();
@@ -56,12 +56,9 @@ public class ObjectDestroyer : MonoBehaviour
 
     public void DestroyFirst()
     {
-        if (m_DestroyQueue.Count > 0)
-        {
-            var element = m_DestroyQueue.First();
-            m_DestroyQueue.Remove(element);
-            Destroy(element);
-        }
+        var element = m_DestroyQueue.First();
+        m_DestroyQueue.Remove(element);
+        Destroy(element);
     }
 
     public void DestroyLast()
