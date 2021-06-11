@@ -2969,6 +2969,11 @@ PrefabInstance:
       propertyPath: m_textInfo.pageCount
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3572975561069501405, guid: 3697e97d6ac96fc4c94b5d8647852f4d,
+        type: 3}
+      propertyPath: deadzone
+      value: 0.55
+      objectReference: {fileID: 0}
     - target: {fileID: 7751554565528624240, guid: 3697e97d6ac96fc4c94b5d8647852f4d,
         type: 3}
       propertyPath: m_Mesh
