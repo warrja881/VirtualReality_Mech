@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour
     /// <summary>The current active scene.</summary>
     public Scene CurrentScene { get => SceneManager.GetActiveScene(); }
 
+    [HideInInspector]
+    public ObjectDestroyer m_ObjectDestroyer;
+
     private void Awake()
     {
         // Yikes... singleton patterns...
@@ -25,6 +28,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        m_ObjectDestroyer = gameObject.AddComponent<ObjectDestroyer>();
         MenuHandler = (FindObjectOfType(typeof(Menus)) as Menus);
     }
 

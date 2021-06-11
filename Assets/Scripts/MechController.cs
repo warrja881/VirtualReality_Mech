@@ -1,10 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class MechController : MonoBehaviour
 {
+    [SerializeField]
+    [Tooltip("The mech's chain gun.")]
+    public ChainGun m_ChainGun;
+
+    [SerializeField]
+    [Tooltip("The mech's rocket launcher.")]
+    public RocketLauncher m_RocketLauncher;
+
     [SerializeField]
     [Tooltip("The movement speed of the mech.")]
     private float m_MoveSpeed = 5.0f;
@@ -17,38 +23,24 @@ public class MechController : MonoBehaviour
     [SerializeField]
     private float m_RotationSmooth = 5.0f;
 
-    [SerializeField]
-    [Tooltip("The spinning barrel piece of the mech's chaingun.\n(NOTE: This is only temporary and will be moved into a chaingun script.)")]
-    private Transform m_ChainGunBarrel;
-
-    [SerializeField]
-    [Tooltip("The maximum spin speed of the chaingun barrel when it is spooling.\n(NOTE: This is only temporary and will be moved into a chaingun script.)")]
-    private float m_MaxBarrelSpeed = 15.0f;
-
-    /// <summary>The chaingun's current rotation speed.</summary>
-    private float m_CurrentBarrelSpeed = 0.0f;
-
     /// <summary>The mech's current rotation.</summary>
     private float m_MechRotation = 0.0f;
 
     /// <summary>The keyboard and mouse input handler.</summary>
     private KeyboardMouseInput m_KBMInput;
 
-    /// <summary>The Oculus Go input handler </summary>
+    /// <summary>The Oculus Go input handler.</summary>
     private OculusGoInput m_GOInput;
 
     public Rigidbody Rigidbody { get => m_Rigidbody; }
 
     private Rigidbody m_Rigidbody;
 
-    ////////////////////////////////////////////////////////////
-    //// THE FOLLOWING IS JANK AND WILL BE REMOVED LATER ON ////
-    ////////////////////////////////////////////////////////////
-
     private enum Weapon { ChainGun = 1, RocketLauncher = 2 }
 
     [SerializeField]
-    [Tooltip("The current selected weapon.\n(NOTE: This is jank af and will be removed later in favour of a better solution.)")]
+    [ReadOnly]
+    [Tooltip("The current selected weapon.")]
     private Weapon m_CurrentWeapon = Weapon.ChainGun;
 
     private void Awake()
@@ -99,12 +91,13 @@ public class MechController : MonoBehaviour
                 m_GOInput.OnSwitchWeapon += SwitchWeapons;
             }
         }
+
+        m_ChainGun?.Select();
+        m_RocketLauncher?.Unselect();
     }
 
     private void FixedUpdate()
     {
-        Debug.Log(m_MechRotation);
-
         if (m_Rigidbody.velocity.y != 0.0f)
             m_Rigidbody.velocity += Physics.gravity * 2.5f * Time.fixedDeltaTime;
     }
@@ -131,46 +124,27 @@ public class MechController : MonoBehaviour
         if (input)
         {
             if (m_CurrentWeapon == Weapon.ChainGun)
-                m_CurrentWeapon = Weapon.RocketLauncher;
-            else
-                m_CurrentWeapon = Weapon.ChainGun;
-        }
-    }
-
-    /// <summary>Fires the mech's weapon </summary>
-    /// <param name="input"></param>
-    private void Fire(bool input)
-    {
-        if (ChainGunSpooled(input))
-        {
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hitInfo))
             {
-                ExplosiveBarrel barrel = null;
-                hitInfo.transform.TryGetComponent(out barrel);
-
-                barrel?.Explode();
+                m_CurrentWeapon = Weapon.RocketLauncher;
+                m_RocketLauncher?.Select();
+                m_ChainGun?.Unselect();
+            }
+            else
+            {
+                m_CurrentWeapon = Weapon.ChainGun;
+                m_ChainGun?.Select();
+                m_RocketLauncher?.Unselect();
             }
         }
     }
 
-    /// <summary>Spools the chaingun to prepare it for firing.</summary>
-    /// <param name="spool">Defines whether or not the chaingun should be spooling.</param>
-    /// <returns>Whether chaingun is spooled and ready to be fired.</returns>
-    private bool ChainGunSpooled(bool spool)
+    /// <summary>Fires the mech's weapon.</summary>
+    /// <param name="input"></param>
+    private void Fire(bool input)
     {
-        // Increase or decrease the spin speed of the barrel
-        if (spool && m_CurrentWeapon == Weapon.ChainGun)
-            m_CurrentBarrelSpeed += 10.0f * Time.deltaTime;
-        else
-            m_CurrentBarrelSpeed -= 10.0f * Time.deltaTime;
-
-        // Clamp the speed of the barrel spin
-        m_CurrentBarrelSpeed = Mathf.Clamp(m_CurrentBarrelSpeed, 0.0f, m_MaxBarrelSpeed);
-        
-        // Rotate the barrel
-        m_ChainGunBarrel.Rotate(0.0f, 0.0f, m_CurrentBarrelSpeed);
-
-        // Return spooled status
-        return m_CurrentBarrelSpeed >= m_MaxBarrelSpeed;
+        // Calls both weapon fire functions but only
+        // the selected weapon will actually fire.
+        m_ChainGun?.Fire(input);
+        m_RocketLauncher?.Fire(input);
     }
 }

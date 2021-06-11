@@ -6,6 +6,16 @@ using UnityEngine;
 public class ExplosiveBarrel : MonoBehaviour
 {
     [SerializeField]
+    [Tooltip("The particle system for the explosion.")]
+    private GameObject m_ExplosionParticles;
+
+    [SerializeField]
+    private GameObject m_Model;
+
+    [HideInInspector]
+    public float ExplodeTime = 0.0f;
+
+    [SerializeField]
     [Tooltip("The maximum health of the barrel.")]
     private int m_MaxHealth = 100;
 
@@ -22,25 +32,39 @@ public class ExplosiveBarrel : MonoBehaviour
     private float m_ChainExplosionDelay = 0.5f;
 
     [SerializeField]
-    [Tooltip("The amount of damage the barrel deals to the mechs.")]
+    [Tooltip("The amount of explosion force the barrel deals to its surroundings.")]
     private float m_ExplosionForce = 250.0f;
 
     [SerializeField]
-    [Tooltip("The amount of damage the barrel deals to the mechs.")]
+    [Tooltip("The amount of damage the barrel deals to its surroundings.")]
     private float m_Damage = 50.0f;
 
     public Rigidbody Rigidbody { get => m_Rigidbody; }
     private Rigidbody m_Rigidbody;
 
+    private Collider m_Collider;
+
     /// <summary>Defines whether not the barrel is currently in the process of exploding.</summary>
     [HideInInspector]
     public bool m_Exploding = false;
 
-    private void Start() => m_Rigidbody = GetComponent<Rigidbody>();
+    private void Start()
+    {
+        m_Collider = GetComponent<Collider>();
+        m_Rigidbody = GetComponent<Rigidbody>();
+    }
 
     public void Explode()
     {
         m_Exploding = true;
+        ExplodeTime = Time.time;
+
+        m_Rigidbody.velocity = Vector3.zero;
+        m_Rigidbody.angularVelocity = Vector3.zero;
+        m_Rigidbody.isKinematic = true;
+        m_Model.SetActive(false);
+        m_ExplosionParticles.SetActive(true);
+        m_ExplosionParticles.GetComponentsInChildren<ParticleSystem>().ToList().ForEach(system => system.Play());
 
         // Finds player mech
         // TODO: Extend this to check all mechs including AI if implemented
@@ -81,8 +105,18 @@ public class ExplosiveBarrel : MonoBehaviour
         }
 
         // Destroy game object after explosion
-        // NOTE: This is not efficient. It would be best to implement object pooling
-        Destroy(gameObject);
+        Destroy(m_Collider);
+        if (GameManager.Instance != null)
+            GameManager.Instance.m_ObjectDestroyer.AddToQueue(gameObject);
+        else
+            Destroy(gameObject);
+    }
+
+    public void TakeDamage(int damage)
+    {
+        m_CurrentHealth -= damage;
+
+        if (m_CurrentHealth <= 0) Explode();
     }
 
     public void ExplodeWithDelay()
