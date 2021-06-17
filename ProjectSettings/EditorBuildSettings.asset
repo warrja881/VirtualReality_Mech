@@ -17,7 +17,10 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/VRGreybox_001.unity
     guid: 98ad7ef200d318d4fbdad9c90c229c2a
+  - enabled: 1
+    path: Assets/Scenes/Level_002.unity
+    guid: dcd9d03b08b8e0e4d9693a2f12352448
   m_configObjects: {}
