@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -7,10 +9,12 @@ public class ExplosiveBarrel : MonoBehaviour
 {
     [SerializeField]
     [Tooltip("The particle system for the explosion.")]
-    private GameObject m_ExplosionParticles;
+    private ParticleSystem m_ExplosionParticles;
+    public ParticleSystem ExplosionParticles { get => m_ExplosionParticles; }
 
     [SerializeField]
     private GameObject m_Model;
+    public GameObject Model { get => m_Model; }
 
     [HideInInspector]
     public float ExplodeTime = 0.0f;
@@ -39,6 +43,10 @@ public class ExplosiveBarrel : MonoBehaviour
     [Tooltip("The amount of damage the barrel deals to its surroundings.")]
     private float m_Damage = 50.0f;
 
+    [SerializeField]
+    [Tooltip("The distance which beyond barrels will not be visible or interactive.")]
+    private float m_CullingDistance = 200.0f;
+
     public Rigidbody Rigidbody { get => m_Rigidbody; }
     private Rigidbody m_Rigidbody;
 
@@ -48,39 +56,48 @@ public class ExplosiveBarrel : MonoBehaviour
     [HideInInspector]
     public bool m_Exploding = false;
 
+    private MechController m_Mech;
+
     private void Start()
     {
         m_Collider = GetComponent<Collider>();
         m_Rigidbody = GetComponent<Rigidbody>();
+        m_Mech = FindObjectOfType<MechController>();
+
+        GameManager.Instance?.m_ObjectHandler.RegisterBarrel(this);
+    }
+
+    public bool WithinViewRange()
+    {
+        return m_Mech != null && Vector3.Distance(transform.position, m_Mech.transform.position) < m_CullingDistance;
     }
 
     public void Explode()
     {
+        if (!WithinViewRange()) return;
+
         m_Exploding = true;
         ExplodeTime = Time.time;
 
         m_Rigidbody.velocity = Vector3.zero;
         m_Rigidbody.angularVelocity = Vector3.zero;
         m_Rigidbody.isKinematic = true;
+        m_Collider.enabled = false;
         m_Model.SetActive(false);
-        m_ExplosionParticles.SetActive(true);
-        m_ExplosionParticles.GetComponentsInChildren<ParticleSystem>().ToList().ForEach(system => system.Play());
-
-        // Finds player mech
-        // TODO: Extend this to check all mechs including AI if implemented
-        var mech = FindObjectOfType(typeof(MechController)) as MechController;
+        m_ExplosionParticles.transform.parent.gameObject.SetActive(true);
 
         // Find all surrounding barrels
-        var surroundingBarrels = FindObjectsOfType(typeof(ExplosiveBarrel)).ToList();
+        List<ExplosiveBarrel> surroundingBarrels = new List<ExplosiveBarrel>();
+        if (GameManager.Instance != null)
+            surroundingBarrels = GameManager.Instance.m_ObjectHandler.BarrelCollection.ToList();
+        else
+            surroundingBarrels = ((ExplosiveBarrel[])FindObjectsOfType(typeof(ExplosiveBarrel))).ToList();
 
         // Linq style foreach loop
-        surroundingBarrels.ForEach(itr =>
+        surroundingBarrels.ForEach(barrel =>
         {
-            // Cache current iterator as the barrel type
-            var barrel = itr as ExplosiveBarrel;
-
             // Ensure no self reference
-            if (barrel != this)
+            if (barrel != null && barrel != this)
             {
                 float distanceToOtherBarrel = Vector3.Distance(transform.position, barrel.transform.position);
 
@@ -96,18 +113,9 @@ public class ExplosiveBarrel : MonoBehaviour
             }
         });
 
-        float distanceToMech = Vector3.Distance(transform.position, mech.transform.position);
-
-        if (Vector3.Distance(transform.position, mech.transform.position) <= m_BlastRadius)
-        {
-            // Add esplosion force to mech
-            mech.Rigidbody.AddExplosionForce(m_ExplosionForce * Rigidbody.mass, transform.position, m_BlastRadius);
-        }
-
         // Destroy game object after explosion
-        Destroy(m_Collider);
         if (GameManager.Instance != null)
-            GameManager.Instance.m_ObjectDestroyer.AddToQueue(gameObject);
+            GameManager.Instance.m_ObjectHandler.DestroyObjects(this, m_ExplosionParticles);
         else
             Destroy(gameObject);
     }
@@ -129,7 +137,7 @@ public class ExplosiveBarrel : MonoBehaviour
     {
         m_Exploding = true;
 
-        yield return new WaitForSeconds(m_ChainExplosionDelay);
+        yield return new WaitForSeconds(UnityEngine.Random.Range(m_ChainExplosionDelay / 2, m_ChainExplosionDelay * 2));
         
         Explode();
     }

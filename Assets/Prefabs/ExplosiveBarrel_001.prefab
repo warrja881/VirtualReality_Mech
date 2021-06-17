@@ -77,7 +77,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78bbb95ddc01f8b4b81b8aa810b21c51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ExplosionParticles: {fileID: 5108858289134794138}
+  m_ExplosionParticles: {fileID: 4542940709115025273}
   m_Model: {fileID: 7171986392666681685}
   ExplodeTime: 0
   m_MaxHealth: 100
@@ -86,6 +86,7 @@ MonoBehaviour:
   m_ChainExplosionDelay: 0.5
   m_ExplosionForce: 2000
   m_Damage: 50
+  m_CullingDistance: 200
   m_Exploding: 0
 --- !u!1 &7171986392666681685
 GameObject:
@@ -240,15 +241,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 99fcad92b1bfb8c4888353015d3d9694, type: 3}
---- !u!1 &5108858289134794138 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1048845649087353189, guid: 99fcad92b1bfb8c4888353015d3d9694,
-    type: 3}
-  m_PrefabInstance: {fileID: 5217543332294599935}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7653524203477251221 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2476618823952568426, guid: 99fcad92b1bfb8c4888353015d3d9694,
+    type: 3}
+  m_PrefabInstance: {fileID: 5217543332294599935}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &4542940709115025273 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 8602918197535372166, guid: 99fcad92b1bfb8c4888353015d3d9694,
     type: 3}
   m_PrefabInstance: {fileID: 5217543332294599935}
   m_PrefabAsset: {fileID: 0}

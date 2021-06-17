@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -6,7 +7,8 @@ public class Rocket : MonoBehaviour
 {
     [SerializeField]
     [Tooltip("The particle system for the explosion.")]
-    private GameObject m_ExplosionParticlesPrefab;
+    private GameObject m_ExplosionParticles;
+    public GameObject ExplosionParticles { get => m_ExplosionParticles; }
 
     [SerializeField]
     [Tooltip("The particle system for the rocket trail.")]
@@ -29,25 +31,26 @@ public class Rocket : MonoBehaviour
         Rigidbody rigidbody = GetComponent<Rigidbody>();
         rigidbody.useGravity = false;
         rigidbody.AddForce(direction * m_LaunchSpeed, ForceMode.Impulse);
-
     }
 
     private void Explode()
     {
         m_TrailParticles.Stop();
-        var explosionParticles = Instantiate(m_ExplosionParticlesPrefab, transform.position, Quaternion.identity);
+        m_ExplosionParticles.SetActive(true);
+        //var explosionParticles = Instantiate(m_ExplosionParticlesPrefab, transform.position, Quaternion.identity);
 
         // Find all surrounding barrels
-        var surroundingBarrels = FindObjectsOfType(typeof(ExplosiveBarrel)).ToList();
+        List<ExplosiveBarrel> surroundingBarrels = new List<ExplosiveBarrel>();
+        if (GameManager.Instance != null)
+            surroundingBarrels = GameManager.Instance.m_ObjectHandler.BarrelCollection.ToList();
+        else
+            surroundingBarrels = ((ExplosiveBarrel[])FindObjectsOfType(typeof(ExplosiveBarrel))).ToList();
 
         // Linq style foreach loop
-        surroundingBarrels.ForEach(itr =>
+        surroundingBarrels.ForEach(barrel =>
         {
-            // Cache current iterator as the barrel type
-            var barrel = itr as ExplosiveBarrel;
-
             // Ensure no self reference
-            if (barrel != this)
+            if (barrel != null && barrel != this)
             {
                 float distanceToOtherBarrel = Vector3.Distance(transform.position, barrel.transform.position);
 
@@ -66,13 +69,11 @@ public class Rocket : MonoBehaviour
         // Destroy game object after explosion
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.m_ObjectDestroyer.AddToQueue(explosionParticles);
-            GameManager.Instance.m_ObjectDestroyer.AddToQueue(gameObject);
-            gameObject.SetActive(false);
+            GameManager.Instance.m_ObjectHandler.DestroyObjects(m_ExplosionParticles, this);
         }
         else
         {
-            Destroy(explosionParticles);
+            Destroy(m_ExplosionParticles);
             Destroy(gameObject);
         }
     }

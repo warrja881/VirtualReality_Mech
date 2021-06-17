@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     public Scene CurrentScene { get => SceneManager.GetActiveScene(); }
 
     [HideInInspector]
-    public ObjectDestroyer m_ObjectDestroyer;
+    public ObjectHandler m_ObjectHandler;
 
     private void Awake()
     {
@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        m_ObjectDestroyer = gameObject.AddComponent<ObjectDestroyer>();
+        m_ObjectHandler = gameObject.AddComponent<ObjectHandler>();
         MenuHandler = (FindObjectOfType(typeof(Menus)) as Menus);
     }
 
