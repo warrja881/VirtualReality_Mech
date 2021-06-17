@@ -37,6 +37,11 @@ public class Rocket : MonoBehaviour
     {
         m_TrailParticles.Stop();
         m_ExplosionParticles.SetActive(true);
+        Rigidbody rigidbody = GetComponent<Rigidbody>();
+        rigidbody.velocity = Vector3.zero;
+        rigidbody.angularVelocity = Vector3.zero;
+        rigidbody.isKinematic = true;
+
         //var explosionParticles = Instantiate(m_ExplosionParticlesPrefab, transform.position, Quaternion.identity);
 
         // Find all surrounding barrels
