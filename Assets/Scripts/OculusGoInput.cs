@@ -60,11 +60,7 @@ public class OculusGoInput : MonoBehaviour
     public float MoveRangeMax = 359.0f;
 
 
-    private Matrix4x4 ControllerMat4;
-    private Matrix4x4 MechMat4;
-    private Matrix4x4 CombineMat4;
-
-
+    private bool linearMovement = false;
 
     private void Start()
     {
@@ -75,18 +71,25 @@ public class OculusGoInput : MonoBehaviour
     {
         OnPause?.Invoke(Input.GetKeyDown(KeyCode.Escape));
 
-        MechMat4 = mech.transform.worldToLocalMatrix;
-        ControllerMat4 = controller.transform.localToWorldMatrix;
 
-        CombineMat4 = MechMat4 * ControllerMat4;
+        Matrix4x4 MechMat4 = mech.transform.worldToLocalMatrix;
+        Matrix4x4 ControllerMat4 = controller.transform.localToWorldMatrix;
+
+        Matrix4x4 CombineMat4 = MechMat4 * ControllerMat4;
+
+        float inputY = ClampAngle(CombineMat4.rotation.eulerAngles.y, LookRangeMin, LookRangeMax) * -1.0f;
+        float inputX = ClampAngle(CombineMat4.rotation.eulerAngles.x, MoveRangeMin, MoveRangeMax);
+
+        if (inputY == 1.0f || inputY == -1.0f)
+            inputY = 0.0f;
+        if (inputX == 1.0f || inputX == -1.0f)
+            inputX = 0.0f;
+
+        linearMovement = false;
 
 
-        if (OVRInput.Get(OVRInput.Button.PrimaryTouchpad))
-        {
-            OnLook?.Invoke(GetControllerHorizontal());
-            OnMove?.Invoke(GetControllerVertical());
-        }
-
+        OnLook?.Invoke(GetControllerHorizontal(inputY));
+        OnMove?.Invoke(GetControllerVertical(inputX));
         OnFire?.Invoke(OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger));
         OnSwitchWeapon?.Invoke(OVRInput.Get(OVRInput.Button.Back));
     }
@@ -104,40 +107,32 @@ public class OculusGoInput : MonoBehaviour
         return fractionThrough * newRange + newMin;
     }
 
-
-    private float GetControllerHorizontal()
+    private float ClampAngle(float angle, float min, float max)
     {
-        //float angle = controller.transform.localEulerAngles.y;
-        float angle = CombineMat4.rotation.eulerAngles.y;
+        return Mathf.Clamp(MapToRange(angle, min, max, -1, 1), -1.0f, 1.0f);
+    }
 
-
-        float temp = Mathf.Clamp(MapToRange(angle, LookRangeMin, LookRangeMax, 1, -1), -1.0f, 1.0f);
-        
-        if (Mathf.Abs(temp) < deadzone)
+    private float GetControllerHorizontal(float angle)
+    {
+        if (Mathf.Abs(angle) < deadzone)
         {
             return 0.0f;
         }
         else
         {
-            return temp;
+            return angle;
         }
     }
 
-    private float GetControllerVertical()
+    private float GetControllerVertical(float angle)
     {
-        //float angle = controller.transform.localEulerAngles.x;
-        float angle = CombineMat4.rotation.eulerAngles.x;
-
-
-        float temp = Mathf.Clamp(MapToRange(angle, MoveRangeMin, MoveRangeMax, -1, 1), -1.0f, 1.0f);
-
-        if (Mathf.Abs(temp) < deadzone)
+        if (Mathf.Abs(angle) < deadzone)
         {
             return 0.0f;
         }
         else
         {
-            return temp;
+            return angle;
         }
     }
 
