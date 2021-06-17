@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -37297,8 +37297,12 @@ PrefabInstance:
       objectReference: {fileID: 1286756347}
     - target: {fileID: 700556236, guid: 3697e97d6ac96fc4c94b5d8647852f4d, type: 3}
       propertyPath: deadzone
-      value: 0.55
+      value: 0.35
       objectReference: {fileID: 0}
+    - target: {fileID: 700556236, guid: 3697e97d6ac96fc4c94b5d8647852f4d, type: 3}
+      propertyPath: controller
+      value: 
+      objectReference: {fileID: 1059329395039015724}
     - target: {fileID: 271926693064718370, guid: 3697e97d6ac96fc4c94b5d8647852f4d,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -37421,6 +37425,12 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: a458f12be9e84b149966ba0d71a76393, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3697e97d6ac96fc4c94b5d8647852f4d, type: 3}
+--- !u!1 &1059329395039015724 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6395661396971503342, guid: 3697e97d6ac96fc4c94b5d8647852f4d,
+    type: 3}
+  m_PrefabInstance: {fileID: 1059329395039015723}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1102103986375586807
 PrefabInstance:
   m_ObjectHideFlags: 0
