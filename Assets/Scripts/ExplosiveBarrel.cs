@@ -65,6 +65,9 @@ public class ExplosiveBarrel : MonoBehaviour
         m_Mech = FindObjectOfType<MechController>();
 
         GameManager.Instance?.m_ObjectHandler.RegisterBarrel(this);
+		
+		m_ChainExplosionDelay = UnityEngine.Random.Range(0.0f, 1.5f);
+		
     }
 
     public bool WithinViewRange()

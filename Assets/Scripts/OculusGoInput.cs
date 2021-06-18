@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class OculusGoInput : MonoBehaviour
 {
@@ -59,31 +60,47 @@ public class OculusGoInput : MonoBehaviour
     [Range(0.0f, 360.0f)]
     public float MoveRangeMax = 359.0f;
 
+	public GameObject controllerPoint;
 
     private bool linearMovement = false;
 
+	public Text debugText;
+	public Text debugText2;
+	
     private void Start()
     {
-        //OnPause += GameManager.Instance.TogglePause;
     }
 
     private void Update()
     {
-        OnPause?.Invoke(Input.GetKeyDown(KeyCode.Escape));
-
-
         Matrix4x4 MechMat4 = mech.transform.worldToLocalMatrix;
         Matrix4x4 ControllerMat4 = controller.transform.localToWorldMatrix;
 
         Matrix4x4 CombineMat4 = MechMat4 * ControllerMat4;
+		
+		
+		Vector3 setFloatingPos = controller.transform.position + new Vector3(0.0f, 1.0f, 0.0f);
+		Vector3 controllerDirection = controllerPoint.transform.position - setFloatingPos;
+		Vector4 controllerDirection4 = new Vector4(controllerDirection.x, controllerDirection.y, controllerDirection.z, 0);
+		
+		Debug.DrawLine(controllerPoint.transform.position, setFloatingPos);
+		
+		controllerDirection = MechMat4 * controllerDirection4;
+		
 
-        float inputY = ClampAngle(CombineMat4.rotation.eulerAngles.y, LookRangeMin, LookRangeMax) * -1.0f;
-        float inputX = ClampAngle(CombineMat4.rotation.eulerAngles.x, MoveRangeMin, MoveRangeMax);
+        
+		
+		
+		float inputY = controllerDirection.x; //ClampAngle(CombineMat4.rotation.eulerAngles.y, LookRangeMin, LookRangeMax) * -1.0f;
+        float inputX = controllerDirection.y; //ClampAngle(CombineMat4.rotation.eulerAngles.x, MoveRangeMin, MoveRangeMax);
+		
+		debugText.text = inputY.ToString();
+		debugText2.text = inputX.ToString();
 
-        if (inputY == 1.0f || inputY == -1.0f)
-            inputY = 0.0f;
-        if (inputX == 1.0f || inputX == -1.0f)
-            inputX = 0.0f;
+        //if (inputY == 1.0f || inputY == -1.0f)
+        //    inputY = 0.0f;
+        //if (inputX == 1.0f || inputX == -1.0f)
+        //    inputX = 0.0f;
 
         linearMovement = false;
 
@@ -91,7 +108,7 @@ public class OculusGoInput : MonoBehaviour
         OnLook?.Invoke(GetControllerHorizontal(inputY));
         OnMove?.Invoke(GetControllerVertical(inputX));
         OnFire?.Invoke(OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger));
-        OnSwitchWeapon?.Invoke(OVRInput.Get(OVRInput.Button.Back));
+        OnSwitchWeapon?.Invoke(OVRInput.Get(OVRInput.Button.PrimaryTouchpad));
     }
 
     private float MapToRange(float value, float oldMin, float oldMax, float newMin, float newMax)
