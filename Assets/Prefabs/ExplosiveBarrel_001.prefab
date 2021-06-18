@@ -88,6 +88,11 @@ MonoBehaviour:
   m_Damage: 50
   m_CullingDistance: 200
   m_Exploding: 0
+  audSrc: {fileID: 3604787702845130669}
+  vol_min: 0.6
+  vol_max: 0.9
+  pitch_min: 0.7
+  pitch_max: 1.3
 --- !u!1 &7171986392666681685
 GameObject:
   m_ObjectHideFlags: 0
@@ -239,6 +244,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8822190297097659218, guid: 99fcad92b1bfb8c4888353015d3d9694,
+        type: 3}
+      propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8822190297097659218, guid: 99fcad92b1bfb8c4888353015d3d9694,
+        type: 3}
+      propertyPath: m_PlayOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 99fcad92b1bfb8c4888353015d3d9694, type: 3}
 --- !u!4 &7653524203477251221 stripped
@@ -250,6 +265,12 @@ Transform:
 --- !u!198 &4542940709115025273 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 8602918197535372166, guid: 99fcad92b1bfb8c4888353015d3d9694,
+    type: 3}
+  m_PrefabInstance: {fileID: 5217543332294599935}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &3604787702845130669 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 8822190297097659218, guid: 99fcad92b1bfb8c4888353015d3d9694,
     type: 3}
   m_PrefabInstance: {fileID: 5217543332294599935}
   m_PrefabAsset: {fileID: 0}

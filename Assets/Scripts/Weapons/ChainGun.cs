@@ -27,10 +27,14 @@ public class ChainGun : Weapon
     /// <summary>The chaingun's current rotation speed.</summary>
     private float m_CurrentBarrelSpeed = 0.0f;
 
+    public AudioSource ChainGunStartup;
+    public AudioSource ChainGunFire;
+
     private void Start() => m_NextFiringTime = Time.time + (60.0f / m_RateOfFire);
 
     public override void Fire(bool input)
     {
+        
         // Ensure gun is spooled before and the rate of fire is matched
         if (Spooled(input) && ReadyToFire())
         {
@@ -43,10 +47,9 @@ public class ChainGun : Weapon
                 objectFiredAt.TryGetComponent(out ExplosiveBarrel barrel);
                 barrel?.TakeDamage(m_DamageOutput);
             }
+            ChainGunFire.Play();
         }
     }
-
-
 
     /// <summary>Spools the chaingun to prepare it for firing.</summary>
     /// <returns>Whether chaingun is spooled and ready to be fired.</returns>
@@ -54,10 +57,14 @@ public class ChainGun : Weapon
     {
         // Increase or decrease the spin speed of the barrel
         if (m_Selected && spool)
+        {
+            if (!ChainGunStartup.isPlaying) ChainGunStartup.Play();
             m_CurrentBarrelSpeed += m_MaxBarrelSpeed / m_SpoolTime * Time.deltaTime;
+        }
         else
+        {
             m_CurrentBarrelSpeed -= m_MaxBarrelSpeed / m_SpoolTime * Time.deltaTime;
-        
+        }
         // Clamp the speed of the barrel spin
         m_CurrentBarrelSpeed = Mathf.Clamp(m_CurrentBarrelSpeed, 0.0f, m_MaxBarrelSpeed);
         

@@ -26,11 +26,15 @@ public class Rocket : MonoBehaviour
     [Tooltip("The blast radius of the rocket's explosion.")]
     private float m_BlastRadius = 5.0f;
 
+    public AudioSource rocketLaunch;
+
     public void Launch(Vector3 direction)
     {
         Rigidbody rigidbody = GetComponent<Rigidbody>();
         rigidbody.useGravity = false;
         rigidbody.AddForce(direction * m_LaunchSpeed, ForceMode.Impulse);
+
+        rocketLaunch.Play();
     }
 
     private void Explode()

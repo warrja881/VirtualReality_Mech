@@ -58,6 +58,12 @@ public class ExplosiveBarrel : MonoBehaviour
 
     private MechController m_Mech;
 
+    public AudioSource audSrc;
+    public float vol_min = 0.6f;
+    public float vol_max = 0.9f;
+    public float pitch_min = 0.7f;
+    public float pitch_max = 1.3f;
+
     private void Start()
     {
         m_Collider = GetComponent<Collider>();
@@ -112,6 +118,11 @@ public class ExplosiveBarrel : MonoBehaviour
 
                     // Detonate barrel
                     barrel.ExplodeWithDelay();
+
+                    audSrc.volume = UnityEngine.Random.Range(vol_min, vol_max);
+                    audSrc.pitch = UnityEngine.Random.Range(pitch_min, pitch_max);
+                    audSrc.Play();
+
                 }
             }
         });
@@ -134,6 +145,7 @@ public class ExplosiveBarrel : MonoBehaviour
     {
         if (!m_Exploding)
             StartCoroutine(DelayedExplosion());
+
     }
 
     private IEnumerator DelayedExplosion()
