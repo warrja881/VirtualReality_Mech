@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour
     /// <summary>The current active scene.</summary>
     public Scene CurrentScene { get => SceneManager.GetActiveScene(); }
 
+    [HideInInspector]
+    public ObjectHandler m_ObjectHandler;
+
     private void Awake()
     {
         // Yikes... singleton patterns...
@@ -25,25 +28,26 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        m_ObjectHandler = gameObject.AddComponent<ObjectHandler>();
         MenuHandler = (FindObjectOfType(typeof(Menus)) as Menus);
     }
 
     /// <summary>Pauses the game.</summary>
     public void TogglePause(bool input)
     {
-        if (!input) return;
-
-        // Invert pause status
-        Paused = !Paused;
-
-        Cursor.visible = Paused;
-        Cursor.lockState = Paused ? CursorLockMode.None : CursorLockMode.Locked;
-
-        // Toggle pause menu if one exists within the scene
-        MenuHandler?.gameObject.SetActive(Paused);
-
-        // Set time scale to simulate game pause
-        Time.timeScale = Paused ? 0.0f : 1.0f;
+        //if (!input) return;
+        //
+        //// Invert pause status
+        //Paused = !Paused;
+        //
+        //Cursor.visible = Paused;
+        //Cursor.lockState = Paused ? CursorLockMode.None : CursorLockMode.Locked;
+        //
+        //// Toggle pause menu if one exists within the scene
+        //MenuHandler?.gameObject.SetActive(Paused);
+        //
+        //// Set time scale to simulate game pause
+        //Time.timeScale = Paused ? 0.0f : 1.0f;
     }
 
     /// <summary>Load scene using the scene's build index.</summary>
@@ -51,7 +55,7 @@ public class GameManager : MonoBehaviour
     public void LoadScene(int sceneIndex)
     {
         // Ensure game is unpaused before reload
-        if (Paused) TogglePause(true);
+        //if (Paused) TogglePause(true);
 
         SceneManager.LoadSceneAsync(sceneIndex);
     }
@@ -61,7 +65,7 @@ public class GameManager : MonoBehaviour
     public void LoadScene(string sceneName)
     {
         // Ensure game is unpaused before reload
-        if (Paused) TogglePause(true);
+        //if (Paused) TogglePause(true);
 
         SceneManager.LoadSceneAsync(sceneName);
     }
@@ -70,7 +74,7 @@ public class GameManager : MonoBehaviour
     public void ReloadScene()
     {
         // Ensure game is unpaused before reload
-        if (Paused) TogglePause(true);
+        //if (Paused) TogglePause(true);
 
         SceneManager.LoadSceneAsync(CurrentScene.buildIndex);
     }

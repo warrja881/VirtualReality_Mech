@@ -24,7 +24,7 @@ public class Menus : MonoBehaviour
     }
 
     /// <summary>Unity will attempt to find whatever scene that is passed in as a argument. Make sure that it is spelt correct and the scene is in the build settings.</summary>
-    public void StartGame() => GameManager.Instance.LoadScene("Level_001");
+    public void StartGame() => GameManager.Instance.LoadScene("Level_002");
 
     /// <summary>Will turn the 'main menu' canvas off and turn the 'settings' canvas of so that the player can tweak the games settings.</summary>
     public void Settings()

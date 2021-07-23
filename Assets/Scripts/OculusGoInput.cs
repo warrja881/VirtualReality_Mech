@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class OculusGoInput : MonoBehaviour
 {
@@ -37,71 +39,68 @@ public class OculusGoInput : MonoBehaviour
     /// <summary>Gets the controler </summary>
     public GameObject controller;
 
+    /// <summary>To set the object that the controller uses for tracking input </summary>
+    public GameObject controllerPoint;
+
+    /// <summary>Gets the mech </summary>
+    public GameObject mech;
+
+    /// <summary>To set the deadzone of the movement "Joystick" </summary>
+    [Range(0.0f, 1.0f)]
+    public float deadzone = 0.5f;
+
+	
     private void Start()
     {
-        //OnPause += GameManager.Instance.TogglePause;
     }
 
     private void Update()
     {
-        OnPause?.Invoke(Input.GetKeyDown(KeyCode.Escape));
+        Matrix4x4 MechMat4 = mech.transform.worldToLocalMatrix;
+        Matrix4x4 ControllerMat4 = controller.transform.localToWorldMatrix;
 
-        if (OVRInput.Get(OVRInput.Button.PrimaryTouchpad))
-        {
-            OnLook?.Invoke(GetControllerHorizontal());
-            OnMove?.Invoke(GetControllerVertical());
-        }
+        Matrix4x4 CombineMat4 = MechMat4 * ControllerMat4;
+		
+		
+		Vector3 setFloatingPos = controller.transform.position + new Vector3(0.0f, 1.0f, 0.0f);
+		Vector3 controllerDirection = controllerPoint.transform.position - setFloatingPos;
+		Vector4 controllerDirection4 = new Vector4(controllerDirection.x, controllerDirection.y, controllerDirection.z, 0);
+		
+		controllerDirection = MechMat4 * controllerDirection4;
+		
+		
+		float inputY = Mathf.Clamp(controllerDirection.x, -1.0f, 1.0f);
+        float inputX = Mathf.Clamp(controllerDirection.z, -1.0f, 1.0f);
+		
 
+        OnLook?.Invoke(GetControllerHorizontal(inputY));
+        OnMove?.Invoke(GetControllerVertical(inputX));
         OnFire?.Invoke(OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger));
-        OnSwitchWeapon?.Invoke(OVRInput.Get(OVRInput.Button.Back));
+        OnSwitchWeapon?.Invoke(OVRInput.Get(OVRInput.Button.PrimaryTouchpad));
     }
 
-    private float MapToRange(float value, float oldMin, float oldMax, float newMin, float newMax)
+    private float GetControllerHorizontal(float angle)
     {
-        // 60 - -60 = 120
-        float oldRange = oldMax - oldMin;
-        // 1 - -1 = 2
-        float newRange = newMax - newMin;
-
-        // (-90 - -60) / 120 = -0.25
-        float fractionThrough = (value - oldMin) / oldRange;
-        // -0.25 * 2 + -1
-        return fractionThrough * newRange + newMin;
-    }
-
-
-    private float GetControllerHorizontal()
-    {
-        float angle = controller.transform.eulerAngles.y;
-        //float temp = Mathf.Clamp(MapToRange(controller.transform.rotation.y, -90, 90, -1, 1), -1.0f, 1.0f);
-        if (angle > 270)
-            angle -= 180;
-        float temp = Mathf.Clamp(MapToRange(controller.transform.eulerAngles.y, 30, 270, -1, 1), -1.0f, 1.0f);
-        //float temp = Mathf.Clamp(MapToRange(controllerTransform.eulerAngles.y, -90, 90, -1, 1), -1.0f, 1.0f);
-
-        if (temp > -0.25f && temp < 0.25f)
+        if (Mathf.Abs(angle) < deadzone)
         {
             return 0.0f;
         }
         else
         {
-            return temp;
+            return angle;
         }
     }
 
-    private float GetControllerVertical()
+    private float GetControllerVertical(float angle)
     {
-        //float temp = Mathf.Clamp(MapToRange(controller.transform.rotation.x, -110, 0, -1, 1), -1.0f, 1.0f);
-        float temp = Mathf.Clamp(MapToRange(controller.transform.eulerAngles.x, 0, 320, -1, 1), -1.0f, 1.0f);
-        //float temp = Mathf.Clamp(MapToRange(controllerTransform.eulerAngles.x, -110, 0, -1, 1), -1.0f, 1.0f);
-
-        if (temp > -0.25f && temp < 0.25f)
+        if (Mathf.Abs(angle) < deadzone)
         {
             return 0.0f;
         }
         else
         {
-            return temp;
+            return angle;
         }
     }
+
 }
